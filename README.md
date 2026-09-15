@@ -1,142 +1,112 @@
-# ABC School Management System
+# MultiTenant - ABC School Management System
 
-A scalable **multi-tenant school management system** built with **ASP.NET Core**, **Entity Framework Core**, **ASP.NET Core Identity**, and **Finbuckle.MultiTenant**.
+A **multi-tenant school management system** built with **ASP.NET Core, Entity Framework Core, ASP.NET Core Identity, and Finbuckle.MultiTenant**.
 
-The system is designed to support multiple schools from a single application while keeping each school's data isolated.
+The system is designed to allow multiple schools to use the same application while keeping each school's data isolated.
+
+---
+
+## 📌 Repository Overview
+
+**MultiTenant** is a school management system designed with a **multi-tenant architecture**. The repository follows a layered architecture with separate **Domain, Application, Infrastructure, and WebApi** projects.
+
+The project uses **ASP.NET Core Identity** for authentication and authorization, **Entity Framework Core** for data access, **SQL Server** for persistence, and **Finbuckle.MultiTenant** for tenant management and data isolation.
+
+The project is currently under active development, with additional school management modules planned.
 
 ---
 
 ## 🚧 Project Status
 
-**Status:** In Development
+**Status: In Development**
 
-This project is currently under active development.
-
-Features, database structure, and architecture may change as development progresses.
+This project is currently under active development. The architecture, database structure, and features may change as development continues.
 
 ---
 
-## 🎯 Project Overview
+## 🎯 Project Goals
 
-The goal of this project is to build a modern school management platform where multiple schools can use the same application.
+The main goals of this project are:
 
-Each school is represented as a **tenant**.
-
-### Example
-
-```text
-School A (Tenant A)
-├── Users
-├── Students
-├── Teachers
-├── Classes
-├── Subjects
-└── Academic Data
-
-School B (Tenant B)
-├── Users
-├── Students
-├── Teachers
-├── Classes
-├── Subjects
-└── Academic Data
-```
-
-Users from one school must not be able to access data belonging to another school.
+* Support multiple schools using a single application
+* Secure tenant data isolation
+* Tenant-specific database configuration
+* Authentication and authorization
+* User and role management
+* School management
+* Student management
+* Teacher management
+* Academic management
+* Attendance management
+* Examination and result management
+* Reporting
+* Scalable and maintainable architecture
 
 ---
 
-# 🏗️ Architecture
+## 🏗️ Architecture
 
-The project follows a layered architecture with a strong separation of concerns.
+The project follows a layered architecture.
 
 ```text
-ABCSchool
-│
-├── Domain
-│   ├── Entities
-│   └── Common
+MultiTenant
 │
 ├── Application
-│   ├── Features
 │   ├── DTOs
 │   ├── Interfaces
 │   ├── Services
-│   └── Common
+│   └── Features
+│
+├── Domain
+│   └── Entities
 │
 ├── Infrastructure
 │   ├── Contexts
 │   ├── Identity
 │   ├── Tenancy
-│   ├── Persistence
-│   └── Configurations
+│   ├── Configurations
+│   └── Persistence
 │
-└── API
-    ├── Controllers
-    ├── Middleware
-    ├── Endpoints
-    └── Configuration
+├── WebApi
+│   ├── Controllers
+│   ├── Middleware
+│   └── Configuration
+│
+├── ABCSchool.slnx
+└── README.md
 ```
 
-### Layer Responsibilities
+### Domain
 
-#### Domain
+Contains the core business entities and domain logic.
 
-Contains the core business entities and business rules.
+The Domain layer should remain independent of infrastructure and external frameworks whenever possible.
 
-```text
-Domain
-└── Entities
-    ├── School
-    ├── Student
-    ├── Teacher
-    └── ...
-```
+### Application
 
-The Domain layer should remain independent of infrastructure and framework-specific implementations.
+Contains application-level business logic, use cases, DTOs, interfaces, services, and validation.
 
----
+### Infrastructure
 
-#### Application
-
-Contains application business logic and use cases.
-
-Responsibilities include:
-
-* DTOs
-* Interfaces
-* Commands
-* Queries
-* Services
-* Validation
-* Application-specific business rules
-
----
-
-#### Infrastructure
-
-Contains implementations that interact with external systems.
-
-Responsibilities include:
+Contains implementations for:
 
 * Entity Framework Core
-* Database context
-* Identity
-* Multi-tenancy
+* SQL Server
+* ASP.NET Core Identity
+* Finbuckle.MultiTenant
+* Database contexts
 * Entity configurations
-* Repositories
+* Persistence
 * External services
 
----
+### WebApi
 
-#### API
-
-Provides access to the application through HTTP APIs.
+Provides the HTTP API for the application.
 
 Responsibilities include:
 
+* API endpoints
 * Controllers
-* Endpoints
 * Authentication
 * Authorization
 * Middleware
@@ -148,64 +118,47 @@ Responsibilities include:
 
 The project uses **Finbuckle.MultiTenant** for multi-tenant support.
 
-Each school is treated as an individual tenant.
-
-```text
-Tenant
-│
-├── Tenant Information
-│   ├── Id
-│   ├── Identifier
-│   ├── Name
-│   └── Connection String
-│
-└── School Data
-    ├── Students
-    ├── Teachers
-    ├── Classes
-    └── ...
-```
-
-### Tenant Isolation
-
-Tenant isolation is a core requirement.
-
-For example:
+Each school represents a tenant.
 
 ```text
 Tenant A
-├── Student A1
-├── Student A2
-└── Teacher A1
+└── School A
+    ├── Users
+    ├── Students
+    ├── Teachers
+    ├── Classes
+    └── Academic Data
 
 Tenant B
-├── Student B1
-├── Student B2
-└── Teacher B1
+└── School B
+    ├── Users
+    ├── Students
+    ├── Teachers
+    ├── Classes
+    └── Academic Data
 ```
 
-A user belonging to **Tenant A** must never be able to access resources belonging to **Tenant B**.
+A user belonging to one school must not be able to access another school's data.
+
+### Tenant Isolation
+
+Tenant isolation is a core requirement of the system.
+
+Tenant-aware entities are configured using Finbuckle's multi-tenant support.
+
+Example:
+
+```csharp
+builder
+    .ToTable("Schools", "Academics")
+    .IsMultiTenant();
+```
 
 ---
 
-# 🗄️ Database Strategy
+# 🔐 Authentication & Identity
 
-The application uses:
-
-* **SQL Server**
-* **Entity Framework Core**
-* **EF Core Migrations**
-* **Multi-tenant database configuration**
-
-The project currently supports tenant-aware database configuration.
-
-Depending on the final deployment strategy, tenants can use separate databases or another supported tenant isolation strategy.
-
----
-
-# 🔐 Identity
-
-Authentication and authorization are implemented using **ASP.NET Core Identity**.
+The project uses **ASP.NET Core Identity** for authentication and authorization.
 
 Custom Identity models include:
 
@@ -215,17 +168,14 @@ ApplicationRole
 ApplicationRoleClaim
 ```
 
-The Identity context is tenant-aware through Finbuckle MultiTenant.
+The Identity context is integrated with Finbuckle.MultiTenant.
 
----
+### Identity Tables
 
-## Identity Tables
-
-Identity tables are mapped to the `Identity` schema.
+Identity tables are organized under the `Identity` schema.
 
 ```text
 Identity
-│
 ├── Users
 ├── Roles
 ├── UserRoles
@@ -236,13 +186,20 @@ Identity
 └── UserPasskeys
 ```
 
-The default ASP.NET Identity table names such as `AspNetUsers` and `AspNetRoles` are replaced with application-specific names.
+Custom table names are used instead of the default ASP.NET Identity names such as `AspNetUsers` and `AspNetRoles`.
 
 ---
 
-# 🗂️ Database Schemas
+# 🗄️ Database
 
-The database uses separate schemas to organize different areas of the application.
+The project uses:
+
+* SQL Server
+* Entity Framework Core
+* EF Core Migrations
+* Finbuckle.MultiTenant
+
+## Database Schemas
 
 ### Identity
 
@@ -269,7 +226,7 @@ Academics
 └── ...
 ```
 
-Additional schemas may be introduced as the project grows.
+Additional schemas will be introduced as new modules are added.
 
 ---
 
@@ -295,14 +252,14 @@ internal class SchoolConfig : IEntityTypeConfiguration<School>
 }
 ```
 
-Configurations are applied using:
+Configurations can be applied using:
 
 ```csharp
 builder.ApplyConfigurationsFromAssembly(
     typeof(DbConfigurations).Assembly);
 ```
 
-This keeps the `DbContext` clean and makes database configuration easier to maintain.
+This keeps database configuration organized and prevents the `DbContext` from becoming too large.
 
 ---
 
@@ -310,14 +267,14 @@ This keeps the `DbContext` clean and makes database configuration easier to main
 
 | Technology            | Purpose                        |
 | --------------------- | ------------------------------ |
-| C#                    | Programming language           |
-| ASP.NET Core          | Application framework          |
-| Entity Framework Core | ORM / data access              |
+| C#                    | Programming Language           |
+| .NET                  | Application Platform           |
+| ASP.NET Core          | Web Framework                  |
+| Entity Framework Core | ORM / Data Access              |
 | SQL Server            | Database                       |
-| ASP.NET Core Identity | Authentication & authorization |
-| Finbuckle.MultiTenant | Multi-tenancy                  |
-| REST API              | Application communication      |
-| EF Core Migrations    | Database versioning            |
+| ASP.NET Core Identity | Authentication & Authorization |
+| Finbuckle.MultiTenant | Multi-Tenancy                  |
+| REST API              | Application API                |
 
 ---
 
@@ -325,12 +282,12 @@ This keeps the `DbContext` clean and makes database configuration easier to main
 
 Before running the project, install:
 
-* [.NET SDK](https://dotnet.microsoft.com/download)
+* .NET SDK
 * SQL Server
 * Git
 * Entity Framework Core CLI
 
-Check your .NET version:
+Check .NET:
 
 ```bash
 dotnet --version
@@ -350,21 +307,19 @@ dotnet tool install --global dotnet-ef
 
 ---
 
-# 📥 Getting Started
+# 🚀 Getting Started
 
 ## 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/bibekpandey0521/MultiTenant.git
 ```
 
-Navigate into the project:
+Move into the repository:
 
 ```bash
-cd <project-directory>
+cd MultiTenant
 ```
-
----
 
 ## 2. Restore Dependencies
 
@@ -372,11 +327,17 @@ cd <project-directory>
 dotnet restore
 ```
 
+## 3. Build the Solution
+
+```bash
+dotnet build
+```
+
 ---
 
-## 3. Configure the Database
+# 🗃️ Database Configuration
 
-Update your development configuration.
+Configure your SQL Server connection string in the appropriate application configuration.
 
 Example:
 
@@ -388,11 +349,11 @@ Example:
 }
 ```
 
-> Never commit production connection strings, passwords, API keys, or other secrets to source control.
+> **Important:** Never commit production passwords, connection strings, API keys, or other secrets to GitHub.
 
 ---
 
-# 🗃️ Database Migrations
+# 🔄 Entity Framework Migrations
 
 Create a migration:
 
@@ -406,277 +367,72 @@ Apply the migration:
 dotnet ef database update
 ```
 
-If the solution contains separate Infrastructure and API projects:
+If migrations are located in the `Infrastructure` project:
 
 ```bash
 dotnet ef migrations add InitialCreate \
     --project Infrastructure \
-    --startup-project API
+    --startup-project WebApi
 ```
 
-Apply the database:
+Apply the migration:
 
 ```bash
 dotnet ef database update \
     --project Infrastructure \
-    --startup-project API
+    --startup-project WebApi
 ```
 
 ---
 
-# ▶️ Running the Application
-
-Build the project:
-
-```bash
-dotnet build
-```
+# ▶️ Run the Application
 
 Run the application:
 
 ```bash
-dotnet run
+dotnet run --project WebApi
 ```
 
 For development:
 
 ```bash
-dotnet watch
+dotnet watch --project WebApi
 ```
 
 ---
 
-# 👤 User & Role Management
+# 🏫 Current Features
 
-The system uses Identity for managing:
+### Foundation
 
-* Users
-* Roles
-* Claims
-* User roles
-* Login information
-* Authentication tokens
-
-Example roles may include:
-
-```text
-SuperAdmin
-SchoolAdmin
-Teacher
-Student
-Parent
-Accountant
-Staff
-```
-
-The final role structure will be defined as the application develops.
-
----
-
-# 🏫 School Management
-
-The school module is responsible for managing school-level information.
-
-Current entity:
-
-```text
-School
-```
-
-Planned school-related features:
-
-* School profile
-* School settings
-* Departments
-* Academic years
-* Classes
-* Sections
-* Subjects
-* Teachers
-* Students
-
----
-
-# 📚 Academic Management
-
-Planned academic modules include:
-
-```text
-Academic
-│
-├── Academic Years
-├── Classes
-├── Sections
-├── Subjects
-├── Students
-├── Teachers
-├── Attendance
-├── Exams
-├── Results
-├── Assignments
-└── Timetable
-```
-
----
-
-# 👨‍🎓 Student Management
-
-Planned student features:
-
-* Student registration
-* Student profiles
-* Student admission
-* Parent/guardian information
-* Student enrollment
-* Class assignment
-* Attendance
-* Examination results
-* Academic history
-
----
-
-# 👨‍🏫 Teacher Management
-
-Planned teacher features:
-
-* Teacher profiles
-* Teacher accounts
-* Subject assignment
-* Class assignment
-* Attendance management
-* Examination management
-* Timetable management
-
----
-
-# 📊 Future Modules
-
-The following modules are planned:
-
-### Administration
-
-* [ ] School administration
-* [ ] User management
-* [ ] Role management
-* [ ] Permission management
-* [ ] Audit logs
-
-### Academic
-
-* [ ] Students
-* [ ] Teachers
-* [ ] Classes
-* [ ] Sections
-* [ ] Subjects
-* [ ] Academic years
-* [ ] Attendance
-* [ ] Exams
-* [ ] Results
-* [ ] Timetable
-* [ ] Assignments
-
-### Communication
-
-* [ ] Notifications
-* [ ] Email notifications
-* [ ] Announcements
-* [ ] Parent communication
-
-### Reporting
-
-* [ ] Student reports
-* [ ] Attendance reports
-* [ ] Examination reports
-* [ ] Academic reports
-* [ ] School dashboards
-
-### Portals
-
-* [ ] Admin portal
-* [ ] Teacher portal
-* [ ] Student portal
-* [ ] Parent portal
-
-### Future
-
-* [ ] Mobile application
-* [ ] Payment management
-* [ ] Fee management
-* [ ] Library management
-* [ ] Transport management
-
----
-
-# 🧪 Testing
-
-Testing will be introduced progressively.
-
-Planned test types:
-
-```text
-Tests
-│
-├── Unit Tests
-├── Integration Tests
-├── API Tests
-├── Authentication Tests
-├── Authorization Tests
-└── Multi-Tenant Isolation Tests
-```
-
-Multi-tenant isolation testing is especially important to ensure that one school's data cannot be accessed by another school.
-
----
-
-# 🔒 Security Principles
-
-The project follows these security principles:
-
-1. Tenant boundaries must always be enforced.
-2. Client-provided tenant information must not be blindly trusted.
-3. Users must only access resources belonging to their tenant.
-4. Authorization must be applied to protected resources.
-5. Passwords and secrets must never be stored in source control.
-6. Production credentials must be stored securely.
-7. Database access must be properly secured.
-8. Sensitive information must not be exposed through API responses or logs.
-
----
-
-# 🧭 Development Guidelines
-
-When adding a new feature:
-
-1. Create the domain entity if required.
-2. Define application interfaces/use cases.
-3. Implement infrastructure requirements.
-4. Add EF Core entity configuration.
-5. Make the entity tenant-aware where appropriate.
-6. Add migrations.
-7. Implement API endpoints.
-8. Add authorization.
-9. Add tests.
-10. Update the documentation.
-
----
-
-# 🛣️ Roadmap
-
-## Foundation
-
-* [x] .NET project setup
+* [x] .NET solution setup
+* [x] Domain project
+* [x] Application project
+* [x] Infrastructure project
+* [x] WebApi project
 * [x] Entity Framework Core
+* [x] SQL Server
 * [x] ASP.NET Core Identity
 * [x] Finbuckle.MultiTenant
 * [x] Multi-tenant Identity
 * [x] School entity
 * [x] Entity configurations
+
+---
+
+# 📚 Planned Modules
+
+## Tenant Management
+
 * [ ] Tenant creation
 * [ ] Tenant resolution
 * [ ] Tenant administration
+* [ ] Tenant onboarding
+* [ ] Tenant-specific configuration
 
 ## School Management
 
+* [ ] School profile
 * [ ] Students
 * [ ] Teachers
 * [ ] Classes
@@ -690,15 +446,15 @@ When adding a new feature:
 * [ ] Attendance
 * [ ] Exams
 * [ ] Results
-* [ ] Assignments
-* [ ] Timetable
 * [ ] Grading
+* [ ] Timetable
+* [ ] Assignments
 
 ## Administration
 
 * [ ] User management
 * [ ] Role management
-* [ ] Permissions
+* [ ] Permission management
 * [ ] Audit logging
 
 ## Communication
@@ -709,36 +465,74 @@ When adding a new feature:
 
 ## Reporting
 
-* [ ] Dashboards
 * [ ] Student reports
 * [ ] Attendance reports
 * [ ] Examination reports
+* [ ] Academic reports
+* [ ] Dashboard
+
+## Future
+
+* [ ] Parent Portal
+* [ ] Student Portal
+* [ ] Teacher Portal
+* [ ] Fee Management
+* [ ] Library Management
+* [ ] Mobile Application
 
 ---
 
-# 🤝 Contributing
+# 👥 Planned Roles
 
-This project is currently under active development.
+The system may support roles such as:
 
-When contributing:
-
-1. Create a feature branch.
-2. Keep changes focused.
-3. Follow the existing architecture.
-4. Add tests where appropriate.
-5. Ensure tenant isolation.
-6. Keep migrations consistent.
-7. Update documentation when necessary.
-
-Example:
-
-```bash
-git checkout -b feature/student-management
+```text
+SuperAdmin
+SchoolAdmin
+Teacher
+Student
+Parent
+Accountant
+Staff
 ```
 
+The final role and permission structure will be defined during development.
+
 ---
 
-# 🌱 Branch Naming
+# 🔒 Security
+
+Security and tenant isolation are major requirements.
+
+The application should ensure:
+
+1. Users can only access resources belonging to their tenant.
+2. Tenant information is resolved securely.
+3. Authorization is applied to protected resources.
+4. Tenant boundaries are validated for tenant-specific operations.
+5. Sensitive information is not exposed through API responses.
+6. Production secrets are not committed to source control.
+
+---
+
+# 🧪 Testing
+
+Testing will be introduced progressively.
+
+Planned tests include:
+
+* Unit Tests
+* Integration Tests
+* API Tests
+* Authentication Tests
+* Authorization Tests
+* Multi-Tenant Isolation Tests
+
+Multi-tenant isolation tests are particularly important to verify that one school's users cannot access another school's data.
+
+---
+
+# 🌿 Branch Naming
 
 Recommended branch naming:
 
@@ -754,6 +548,7 @@ Examples:
 
 ```text
 feature/student-management
+feature/tenant-management
 feature/attendance
 bugfix/tenant-resolution
 refactor/identity
@@ -764,7 +559,7 @@ docs/update-readme
 
 # 📝 Commit Convention
 
-Recommended commit format:
+Recommended commit messages:
 
 ```text
 feat: add student management
@@ -777,21 +572,74 @@ chore: update dependencies
 
 ---
 
-# ⚠️ Development Notes
+# 🛣️ Roadmap
+
+### Phase 1 — Foundation
+
+* [x] Project architecture
+* [x] Entity Framework Core
+* [x] ASP.NET Core Identity
+* [x] Finbuckle.MultiTenant
+* [x] Multi-tenant Identity
+* [x] School entity
+* [x] Entity configurations
+
+### Phase 2 — Tenant Management
+
+* [ ] Tenant creation
+* [ ] Tenant resolution
+* [ ] Tenant administration
+* [ ] Tenant onboarding
+
+### Phase 3 — School Management
+
+* [ ] Students
+* [ ] Teachers
+* [ ] Classes
+* [ ] Sections
+* [ ] Subjects
+* [ ] Academic years
+
+### Phase 4 — Academic Management
+
+* [ ] Attendance
+* [ ] Exams
+* [ ] Results
+* [ ] Grading
+* [ ] Timetable
+
+### Phase 5 — Administration
+
+* [ ] User management
+* [ ] Role management
+* [ ] Permissions
+* [ ] Audit logs
+
+---
+
+# 🤝 Contributing
+
+This project is currently under active development.
+
+When contributing:
+
+1. Create a feature branch.
+2. Keep changes focused.
+3. Follow the existing architecture.
+4. Ensure tenant isolation.
+5. Add tests where appropriate.
+6. Keep migrations consistent.
+7. Update documentation when necessary.
+
+---
+
+# ⚠️ Development Status
 
 This project is currently in the early development stage.
 
-The following areas are expected to evolve:
+Architecture and implementation details may change as new requirements are introduced.
 
-* Database architecture
-* Tenant resolution
-* Identity configuration
-* Domain entities
-* API structure
-* Authorization
-* Deployment strategy
-
-The README should be updated whenever significant architectural or functional changes are introduced.
+The README will be updated as the project evolves.
 
 ---
 
@@ -801,8 +649,10 @@ License information will be added when the project is ready for release.
 
 ---
 
-## 👨‍💻 Development
+## 👨‍💻 Project
 
-**ABCSchool Management System**
+**MultiTenant - ABC School Management System**
 
-Built with ❤️ using ASP.NET Core and .NET.
+Built with  using:
+
+**ASP.NET Core · Entity Framework Core · ASP.NET Core Identity · Finbuckle.MultiTenant · SQL Server**
